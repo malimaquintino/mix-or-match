@@ -1,4 +1,5 @@
 # Mix or Match  
+Mix-or-match game made with css and JavaScript  
 
 ## tutorial  
 https://www.youtube.com/watch?v=28VfzEiJgy4  
