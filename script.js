@@ -73,12 +73,53 @@ class MixOrMatch {
             this.totalClicks++;
             this.ticker.innerHTML = this.totalClicks;
             card.classList.add('visible');
+
+            if (this.cardsToCheck){ // check for match cards
+                this.checkForCardMatch(card);
+            }else{
+                this.cardsToCheck = card;
+            }
         }
     }
 
+    checkForCardMatch(card){
+        if (this.getCardType(card) === this.getCardType(this.cardsToCheck)){
+            this.cardMatch(card, this.cardsToCheck);
+        }else{
+            this.cardMissMatch(card, this.cardsToCheck);
+        }
+        this.cardsToCheck = null;
+    }
+
+    cardMatch(card1, card2){
+        this.matchedCards.push(card1);
+        this.matchedCards.push(card2);
+
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+
+        this.audioController.match();
+
+        if (this.matchedCards.length == this.cardsArray.length){
+            this.victory();
+        }
+    }
+
+    cardMissMatch(card1, card2){
+        this.busy = true;
+        setTimeout(() => {
+            card1.classList.remove('visible');
+            card2.classList.remove('visible');
+            this.busy = false;
+        }, 1000);
+    }
+
+    getCardType(card){
+        return card.getElementsByClassName('card-value')[0].src;
+    }
+
     canFlipCard(card){
-        return true;
-        //return (!this.busy && !this.matchedCards.includes(card) && card !== this.cardsToCheck);
+        return (!this.busy && !this.matchedCards.includes(card) && card !== this.cardsToCheck);
     }
 
     shuffleCards(){
@@ -89,7 +130,27 @@ class MixOrMatch {
         }
     }
 
-    startCountdown(){}
+    startCountdown(){
+        return setInterval(() => {
+            this.timeRemaining--;
+            this.timer.innerHTML = this.timeRemaining;
+            if (this.timeRemaining === 0){
+                this.gameOver();
+            }
+        }, 1000);
+    }
+
+    gameOver(){
+        clearInterval(this.countdown);
+        this.audioController.gameOver();
+        document.getElementById('game-over-text').classList.add('visible')
+    }
+
+    victory(){
+        clearInterval(this.countdown);
+        this.audioController.victory();
+        document.getElementById('victory-text').classList.add('visible')
+    }
 
     hideCards(){
         this.cardsArray.forEach(card => {
